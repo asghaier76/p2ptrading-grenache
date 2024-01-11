@@ -1,5 +1,8 @@
 const { PeerRPCServer }  = require('grenache-nodejs-http');
 const Link = require('grenache-nodejs-link');
+const { OrderBook } = require('./orderbook');
+const Logger = require('./logger');
+const logger = new Logger('OrderBook');
 
 const link = new Link({
   grape: 'http://127.0.0.1:30001'
@@ -11,17 +14,26 @@ const peer = new PeerRPCServer(link, {
 });
 peer.init();
 
+let orderBook = new OrderBook();
+
 const port = 1024 + Math.floor(Math.random() * 1000);
 const service = peer.transport('server');
 service.listen(port);
-console.info(`Grenache service starting on ${port}`);
+logger.info(`Grenache service starting on ${port}`);
 
 setInterval(function () {
-  console.log('Announce service');
   link.announce('p2p_trading_worker', service.port, {});
-}, 1000);
+}, 5000);
 
 service.on('request', async (rid, key, payload, handler) => {
-  console.log(rid, key, payload, handler);
-  handler.reply(null, 'result');
+  if (payload.command === 'addOrder') {
+    await orderBook.addOrder(payload.order);
+    handler.reply(null, {requestId: rid,  bids: orderBook.bids, asks: orderBook.asks});
+  } else if (payload.command === 'matchOrders') {
+    await orderBook.matchEngine();
+    handler.reply(null, { orderBook });
+    handler.reply(null, {requestId: rid,  trades: orderBook._trades});
+  } else {
+    handler.reply(null, { msg: 'Unsupported command' });
+  }
 });
