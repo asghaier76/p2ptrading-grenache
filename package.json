@@ -1,0 +1,25 @@
+{
+    "name": "p2p-trading",
+    "version": "1.0.0",
+    "description": "P2P trading backend using Grenache DHT microservice framework",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint src/**/*.js",
+        "lint:fix": "eslint src/**/*.js --fix",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "P2P",
+        "Trading",
+        "Grenache"
+    ],
+    "author": "Ahmad Sghaier",
+    "license": "ISC",
+    "devDependencies": {
+        "eslint": "^8.56.0"
+    },
+    "dependencies": {
+        "grenache-nodejs-http": "^0.7.13",
+        "grenache-nodejs-link": "^1.0.0"
+    }
+}
